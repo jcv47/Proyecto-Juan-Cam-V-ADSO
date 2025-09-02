@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sondar - Comentarios</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <script defer src="../js/script.js"></script>
+</head>
+<body>
+  <div class="container">
+    <!-- ======= HEADER ======= -->
+    <header>
+      <div class="barra_navegacion">Sondar</div>
+      <nav>
+        <ul>
+          <li><a href="Index.html">Inicio</a></li>
+          <li><a href="Servicios.html">Servicios</a></li>
+          <li><a href="Productos.html">Productos</a></li>
+          <li><a href="Comentarios.html" class="active">Comentarios</a></li>
+          <li><a href="Contacto.html">Contacto</a></li>
+          <li><a href="Login.html">Iniciar Sesión</a></li>
+          <li><a href="Register.html">Registrarse</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- ======= SECCIÓN DE COMENTARIOS ======= -->
+    <div class="comentarios-section">
+        <h2>Déjanos tu comentario</h2>
+        <form class="comentario-form" id="comentarioForm">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="comentario">Comentario:</label>
+            <textarea id="comentario" name="comentario" required></textarea>
+
+            <button type="submit" class="btn primary">Enviar</button>
+        </form>
+
+        <h3>Comentarios recientes</h3>
+        <div id="comentariosLista" class="comentarios-lista"></div>
+    </div>
+
+    <!-- ======= FOOTER ======= -->
+    <footer>
+      <p>
+        &copy; 2025 Sondar. Todos los derechos reservados. |
+        <a href="#">Política de Privacidad</a> |
+        <a href="#">Términos de Servicio</a>
+      </p>
+    </footer>
+  </div>
+
+  <!-- ======= VALIDACIÓN DE ACCESO ======= -->
+  <script>
+    // Revisar si el usuario está logueado
+    const usuario = localStorage.getItem("usuario");
+    if (!usuario) {
+      alert("Debes iniciar sesión o registrarte para acceder a los comentarios.");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
