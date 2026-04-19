@@ -16,25 +16,45 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user()->load('profile');
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'birthdate' => ['nullable', 'date'],
+            'ubicacion_usuario' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'birthdate' => $validated['birthdate'] ?? null,
+                'ubicacion_usuario' => $validated['ubicacion_usuario'] ?? null,
+            ]
+        );
+
+        return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
@@ -57,4 +77,24 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    public function deactivate(Request $request): RedirectResponse
+{
+    $request->validate([
+        'password' => ['required', 'current_password'],
+    ], [
+        'password.current_password' => 'La contraseña ingresada no es correcta.',
+    ]);
+
+    $user = $request->user();
+    $user->status = 'inactive';
+    $user->save();
+
+    \Auth::logout();
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('home')->with('status', 'account-deactivated');
+}
 }

@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ComentariosController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\SurveyController as AdminSurveyController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
@@ -15,7 +17,7 @@ Route::view('/', 'index')->name('home');
 })->middleware(['auth', 'verified'])->name('dashboard');
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/comentarios', [ComentariosController::class, 'index'])->name('ui.comentarios');
 
     // Cliente: ver encuesta y responderla
@@ -31,10 +33,11 @@ Route::middleware('auth')->group(function () {
         ->name('admin.submissions.show');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/deactivate', [ProfileController::class, 'deactivate'])->name('profile.deactivate');
 });
 
 Route::prefix('ui')->group(function () {
@@ -50,8 +53,7 @@ Route::prefix('ui')->group(function () {
     });
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // admin/encuestas/crear
     Route::get('/encuestas/crear', [AdminSurveyController::class, 'create'])
         ->name('surveys.create');
@@ -66,6 +68,21 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/submissions/{submission}/ai-mock', [ComentariosController::class, 'generateMockAi'])
         ->name('submissions.ai.mock');
 });
+
+// Rutas de verificación de email
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect()->route('home');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('status', 'verification-link-sent');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 
 

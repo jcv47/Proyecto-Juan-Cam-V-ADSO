@@ -26,9 +26,19 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = auth()->user();
+
+        if ($user->status === 'inactive') {
+            \Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'Tu cuenta está desactivada. Contacta al administrador si necesitas recuperarla.',
+            ]);
+        }
+
         $request->session()->regenerate();
 
-        return redirect()->intended(route('home'));
+        return redirect()->intended(route('home', absolute: false));
     }
 
     /**
