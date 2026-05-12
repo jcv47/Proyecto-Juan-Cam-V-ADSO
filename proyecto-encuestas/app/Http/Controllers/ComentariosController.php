@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\AiAnalyzer;
 use App\Models\AiReport;
+use App\Models\User;
+use App\Mail\SurveyAnsweredMail;
+use Illuminate\Support\Facades\Mail;
 
 class ComentariosController extends Controller
 {
@@ -97,8 +100,7 @@ class ComentariosController extends Controller
         return view('surveys.responder', compact('survey'));
     }
 
-    public function submitSurvey(Request $request, Survey $survey)
-    {
+    public function submitSurvey(Request $request, Survey $survey){
         // Seguridad: solo encuestas activas
         if ((int) $survey->estado !== 1) {
             return redirect()->route('ui.comentarios')->with('error', 'Esta encuesta no está activa.');
@@ -132,41 +134,59 @@ class ComentariosController extends Controller
         $validated = $request->validate($rules);
 
         // Guardar todo en transacción (o se guarda todo o nada)
-        DB::transaction(function () use ($survey, $validated) {
+        $submission = DB::transaction(function () use ($survey, $validated) {
 
-            $submission = Submission::create([
-                'public_id' => (string) Str::uuid(),
-                'survey_id' => $survey->id,
-                'user_id' => auth()->id(),
-            ]);
+                $submission = Submission::create([
+                    'public_id' => (string) Str::uuid(),
+                    'survey_id' => $survey->id,
+                    'user_id' => auth()->id(),
+                ]);
 
-            foreach ($validated['answers'] as $questionId => $content) {
-                // Si viene null (por la opcional) no guardamos answer
-                if ($content === null || trim($content) === '') {
-                    continue;
+                foreach ($validated['answers'] as $questionId => $content) {
+
+                    if ($content === null || trim($content) === '') {
+                        continue;
+                    }
+
+                    Answer::create([
+                        'submission_id' => $submission->id,
+                        'question_id' => (int) $questionId,
+                        'contenido' => $content,
+                    ]);
                 }
 
-                Answer::create([
-                    'submission_id' => $submission->id,
-                    'question_id' => (int) $questionId,
-                    'contenido' => $content,
-                ]);
-            }
+                $submission->load('answers.question');
 
-            $submission->load('answers.question'); 
-            
-            $result = $this->aiAnalyzer->analyze($submission);
+                $result = $this->aiAnalyzer->analyze($submission);
 
-            AiReport::updateOrCreate(
-                ['submission_id' => $submission->id],
-                [
-                    'sentiment' => $result['sentiment'],
-                    'severity' => $result['severity'],
-                    'summary' => $result['summary'],
-                    'improvements' => $result['improvements'] ?? [],
-                ]
-            );
-        });
+                AiReport::updateOrCreate(
+                    ['submission_id' => $submission->id],
+                    [
+                        'sentiment' => $result['sentiment'],
+                        'severity' => $result['severity'],
+                        'summary' => $result['summary'],
+                        'improvements' => $result['improvements'] ?? [],
+                    ]
+                );
+
+                return $submission;
+            });
+        
+
+        // Cargar relaciones necesarias para el correo
+        $submission->load(['user', 'survey']);
+
+        // Buscar admins verificados
+        $admins = User::where('role', 'admin')
+            ->whereNotNull('email_verified_at')
+            ->get();
+
+        // Enviar correo
+        foreach ($admins as $admin) {
+
+            Mail::to($admin->email)
+                ->send(new SurveyAnsweredMail($submission));
+        }
 
         return redirect()->route('ui.comentarios')->with('success', 'Respuesta enviada correctamente.');
     }
@@ -179,7 +199,7 @@ class ComentariosController extends Controller
 
         $submission->load(['user', 'survey', 'answers.question', 'aiReport']);
 
-        // ✅ Auto-generar mock si no existe (solo para pruebas)
+        // Auto-generar mock si no existe (solo para pruebas)
         if (!$submission->aiReport) {
             $this->generateMockAi($submission, true); // true = modo interno, sin redirect
             $submission->load('aiReport'); // recarga relación
