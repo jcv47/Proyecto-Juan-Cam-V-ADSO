@@ -4,14 +4,6 @@
   <div class="comentarios-section" style="max-width: 1100px;">
     <h2>Crear encuesta</h2>
 
-    @if (session('success'))
-      <div class="alert-success">{{ session('success') }}</div>
-    @endif
-
-    @if ($errors->any())
-      <div class="alert-danger">{{ $errors->first() }}</div>
-    @endif
-
     <form method="POST" action="{{ route('admin.surveys.store') }}" id="surveyForm">
       @csrf
 

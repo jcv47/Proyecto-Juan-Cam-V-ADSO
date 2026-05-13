@@ -2,10 +2,6 @@
 
 @section('title', 'Sondar - Contacto')
 
-@push('head')
-  <script defer src="{{ asset('js/script.js') }}"></script>
-@endpush
-
 @section('content')
   <section class="contacto-section">
     <h2>Contáctanos</h2>
@@ -31,7 +27,8 @@
       </div>
     </div>
 
-    <form class="contacto-form" id="contactoForm">
+    <form class="contacto-form" id="contactoForm" method="POST" action="{{ route('ui.contacto.send') }}">
+      @csrf
       <label for="nombre">Nombre completo:</label>
       <input type="text" id="nombre" name="nombre" required>
 
@@ -57,18 +54,3 @@
     </div>
   </section>
 @endsection
-
-@push('scripts')
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const contactoForm = document.getElementById("contactoForm");
-      if (!contactoForm) return;
-
-      contactoForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        alert("✅ Tu mensaje ha sido enviado correctamente.");
-        contactoForm.reset();
-      });
-    });
-  </script>
-@endpush

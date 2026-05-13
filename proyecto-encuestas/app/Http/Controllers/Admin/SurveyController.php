@@ -56,12 +56,12 @@ class SurveyController extends Controller
             ->whereNotNull('email_verified_at')
             ->get();
 
-        foreach ($clientes as $cliente) {
+            $emails = $clientes->pluck('email')->toArray();
 
-            Mail::to($cliente->email)
+            Mail::to(config('mail.from.address'))
+                ->bcc($emails)
                 ->send(new SurveyActivatedMail($survey));
         }
-    }
 
     return redirect()->route('admin.surveys.create')
         ->with('success', 'Encuesta creada correctamente.');

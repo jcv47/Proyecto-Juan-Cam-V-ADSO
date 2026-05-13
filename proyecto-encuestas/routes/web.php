@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\SurveyController as AdminSurveyController;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\ContactController as ContactController;
 
 Route::view('/', 'index')->name('home');
 
@@ -49,7 +50,11 @@ Route::prefix('ui')->group(function () {
     // OJO: comentarios y contacto luego los protegemos con auth (te lo dejo ya listo)
     Route::middleware('auth')->group(function () {
         Route::view('/comentarios', 'comentarios')->name('ui.comentarios');
-        Route::view('/contacto', 'contacto')->name('ui.contacto');
+        Route::get('/contacto', [ContactController::class, 'index'])
+            ->name('ui.contacto');
+
+        Route::post('/contacto', [ContactController::class, 'send'])
+            ->name('ui.contacto.send');
     });
 });
 
