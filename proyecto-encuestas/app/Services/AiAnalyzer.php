@@ -12,7 +12,7 @@ class AiAnalyzer
     public function analyze(Submission $submission): array
     {
         $key   = config('services.openai.key');
-        $model = 'gpt-4.1-mini';
+        $model = config('services.openai.model');
 
         $text = $submission->answers
             ->map(fn($a) => $a->question->contenido . ": " . $a->contenido)
@@ -29,17 +29,55 @@ class AiAnalyzer
                 'input' => [
                     [
                         'role' => 'system',
-                        'content' => 'Eres un analista de reseñas. Devuelve SOLO JSON válido y nada más.',
+                        'content' =>
+
+                            'Eres un analista profesional de experiencia de usuario, satisfacción del cliente y mejora de productos digitales.
+
+                                Tu tarea es analizar respuestas de encuestas enviadas por usuarios reales.
+
+                                Debes identificar:
+                                - percepción general del usuario
+                                - nivel de satisfacción
+                                - problemas importantes
+                                - errores o frustraciones mencionadas
+                                - oportunidades de mejora
+                                - tono emocional del comentario
+
+                                Las respuestas deben ser claras, profesionales y útiles para administradores del sistema.
+
+                                Devuelve ÚNICAMENTE JSON válido.
+                                No agregues explicaciones.
+                                No uses markdown.
+                                No agregues texto fuera del JSON.',
                     ],
                     [
                         'role' => 'user',
                         'content' =>
-                            "Analiza esta respuesta de encuesta y genera:\n".
-                            "- sentiment: positivo|neutral|negativo\n".
-                            "- severity: bueno|regular|critico\n".
-                            "- summary: 1-2 frases\n".
-                            "- improvements: lista (1-6 ítems)\n\n".
-                            "TEXTO:\n".$text
+                        "Analiza las siguientes respuestas de encuesta enviadas por un usuario.
+
+                        Genera:
+
+                        - sentiment:
+                        positivo | neutral | negativo
+
+                        - severity:
+                        bueno | regular | critico
+
+                        - summary:
+                        resumen profesional y claro de la experiencia del usuario.
+
+                        - improvements:
+                        lista de recomendaciones prácticas y concretas para mejorar la experiencia.
+
+                        Considera:
+                        - problemas técnicos
+                        - percepción emocional
+                        - claridad del feedback
+                        - experiencia general del usuario
+                        - posibles mejoras UX/UI
+
+                        RESPUESTAS:
+                        ".$text
                     ],
                 ],
                 'response_format' => [

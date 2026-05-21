@@ -32,6 +32,37 @@
       <label for="password_confirmation">Confirmar contraseña:</label>
       <input type="password" id="password_confirmation" name="password_confirmation" required />
 
+      <label for="role">Tipo de cuenta:</label>
+
+      <select id="role" name="role" required>
+        <option value="cliente">Cliente</option>
+        <option value="admin">Administrador</option>
+      </select>
+
+      <div id="adminCodeContainer" style="display:none; margin-top:20px;">
+        <label for="admin_code">Código administrador:</label>
+
+        <input type="password" id="admin_code" name="admin_code">
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+          const roleSelect = document.getElementById('role');
+          const adminContainer = document.getElementById('adminCodeContainer');
+
+          roleSelect.addEventListener('change', () => {
+
+            if (roleSelect.value === 'admin') {
+              adminContainer.style.display = 'block';
+            } else {
+              adminContainer.style.display = 'none';
+            }
+          });
+
+        });
+      </script>
+
 
       <button type="submit" class="btn primary">Registrarse</button>
     </form>
