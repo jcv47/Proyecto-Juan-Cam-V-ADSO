@@ -11,7 +11,7 @@ class AiAnalyzer
 {
     public function analyze(Submission $submission): array
     {
-        $key   = config('services.openai.key');
+        $key = config('services.openai.key');
         $model = config('services.openai.model');
 
         $text = $submission->answers
@@ -53,7 +53,7 @@ class AiAnalyzer
                     [
                         'role' => 'user',
                         'content' =>
-                        "Analiza las siguientes respuestas de encuesta enviadas por un usuario.
+                            "Analiza las siguientes respuestas de encuesta enviadas por un usuario.
 
                         Genera:
 
@@ -77,12 +77,12 @@ class AiAnalyzer
                         - posibles mejoras UX/UI
 
                         RESPUESTAS:
-                        ".$text
+                        " . $text
                     ],
                 ],
-                'response_format' => [
-                    'type' => 'json_schema',
-                    'json_schema' => [
+                'text' => [
+                    'format' => [
+                        'type' => 'json_schema',
                         'name' => 'ai_report',
                         'strict' => true,
                         'schema' => [
@@ -129,7 +129,8 @@ class AiAnalyzer
             $json = $this->extractJson($res->json());
 
             $improvements = $json['improvements'] ?? [];
-            if (!is_array($improvements)) $improvements = [];
+            if (!is_array($improvements))
+                $improvements = [];
             $improvements = array_values(array_filter($improvements, fn($x) => is_string($x) && trim($x) !== ''));
 
             return [
@@ -151,14 +152,16 @@ class AiAnalyzer
 
         if (is_string($outputText)) {
             $decoded = json_decode($outputText, true);
-            if (is_array($decoded)) return $decoded;
+            if (is_array($decoded))
+                return $decoded;
         }
 
         // Fallback típico: output[0].content[0].text
         $maybe = $response['output'][0]['content'][0]['text'] ?? null;
         if (is_string($maybe)) {
             $decoded = json_decode($maybe, true);
-            if (is_array($decoded)) return $decoded;
+            if (is_array($decoded))
+                return $decoded;
         }
 
         return [];
