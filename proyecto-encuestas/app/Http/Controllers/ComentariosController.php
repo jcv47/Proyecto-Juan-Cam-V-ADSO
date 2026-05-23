@@ -13,6 +13,7 @@ use App\Models\AiReport;
 use App\Models\User;
 use App\Mail\SurveyAnsweredMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ComentariosController extends Controller
 {
@@ -184,8 +185,12 @@ class ComentariosController extends Controller
         // Enviar correo
         foreach ($admins as $admin) {
 
-            Mail::to($admin->email)
-                ->send(new SurveyAnsweredMail($submission));
+            try {
+                Mail::to($admin->email)
+                    ->send(new SurveyAnsweredMail($submission));
+            } catch (\Exception $e) {
+                Log::error('Error al enviar correo: ' . $e->getMessage());
+            }
         }
 
         return redirect()->route('ui.comentarios')->with('success', 'Respuesta enviada correctamente.');
