@@ -14,6 +14,8 @@ use App\Models\User;
 use App\Mail\SurveyAnsweredMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\GenerateAiReportJob;
+use App\Jobs\SendSurveyNotificationJob;
 
 class ComentariosController extends Controller
 {
@@ -158,17 +160,7 @@ class ComentariosController extends Controller
 
                 $submission->load('answers.question');
 
-                $result = $this->aiAnalyzer->analyze($submission);
-
-                AiReport::updateOrCreate(
-                    ['submission_id' => $submission->id],
-                    [
-                        'sentiment' => $result['sentiment'],
-                        'severity' => $result['severity'],
-                        'summary' => $result['summary'],
-                        'improvements' => $result['improvements'] ?? [],
-                    ]
-                );
+                GenerateAiReportJob::dispatch($submission);
 
                 return $submission;
             });
@@ -177,21 +169,7 @@ class ComentariosController extends Controller
         // Cargar relaciones necesarias para el correo
         $submission->load(['user', 'survey']);
 
-        // Buscar admins verificados
-        $admins = User::where('role', 'admin')
-            ->whereNotNull('email_verified_at')
-            ->get();
-
-        // Enviar correo
-        foreach ($admins as $admin) {
-
-            try {
-                Mail::to($admin->email)
-                    ->send(new SurveyAnsweredMail($submission));
-            } catch (\Exception $e) {
-                Log::error('Error al enviar correo: ' . $e->getMessage());
-            }
-        }
+        SendSurveyNotificationJob::dispatch($submission);
 
         return redirect()->route('ui.comentarios')->with('success', 'Respuesta enviada correctamente.');
     }
