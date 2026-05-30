@@ -640,3 +640,74 @@ footer a:hover {
 .radio-option span{
   display: inline-block !important;
 }
+
+
+/* ===== PAGINACIÓN ===== */
+
+/* Tamaño de los iconos SVG */
+svg.w-5,
+svg.h-5 {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+}
+
+/* Contenedor */
+nav[role="navigation"] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Ocultar elementos de Tailwind que no usamos */
+nav[role="navigation"] .sm\:hidden {
+    display: none !important;
+}
+
+nav[role="navigation"] p {
+    display: none;
+}
+
+/* Todos los botones de paginación */
+nav[role="navigation"] a,
+nav[role="navigation"] span[aria-current="page"] span,
+nav[role="navigation"] span[aria-disabled="true"] span {
+    width: 48px;
+    height: 48px;
+    padding: 0 !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Página activa */
+nav[role="navigation"] span[aria-current="page"] span {
+    background-color: #57a6ff;
+    color: white;
+}
+
+/* Páginas normales y flechas */
+nav[role="navigation"] a,
+nav[role="navigation"] span[aria-disabled="true"] span {
+    background-color: #d9ecfa;
+    color: #58aaff;
+}
+
+/* Hover */
+nav[role="navigation"] a:hover {
+    background-color: #57a6ff;
+    color: white;
+}
+
+/* Flechas deshabilitadas */
+nav[role="navigation"] span[aria-disabled="true"] span {
+    opacity: 0.6;
+}
