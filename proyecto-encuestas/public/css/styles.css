@@ -711,3 +711,137 @@ nav[role="navigation"] a:hover {
 nav[role="navigation"] span[aria-disabled="true"] span {
     opacity: 0.6;
 }
+
+/* ===== HAMBURGER BUTTON ===== */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  z-index: 1001;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #57a6ff;
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Animación X al abrir */
+.nav-toggle.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .portada h1     { font-size: 44px; }
+  .portada p      { font-size: 20px; }
+  .cards          { flex-direction: column; align-items: center; }
+  .card           { width: 90%; max-width: 400px; }
+
+  .Futurodigital .contenido { flex-direction: column; text-align: center; }
+  .Futurodigital .imagen img { max-width: 100%; }
+
+  .contacto-section         { margin: 20px 16px; padding: 20px; }
+  .contacto-section .cards  { flex-direction: column; align-items: center; }
+  .contacto-section .card   { width: 100%; max-width: 340px; }
+
+  .auth               { margin: 2rem 16px; }
+  .comentarios-section { margin: 1.5rem 16px; padding: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 16px; }
+
+  /* Header */
+  header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    position: relative;
+  }
+
+  /* Mostrar hamburger */
+  .nav-toggle {
+    display: flex;
+  }
+
+  /* Nav oculto por defecto en móvil */
+  #mainNav {
+    display: none;
+    width: 100%;
+    order: 3;
+  }
+
+  /* Nav visible cuando está abierto */
+  #mainNav.open {
+    display: block;
+  }
+
+  #mainNav ul {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  #mainNav ul li {
+    width: 100%;
+  }
+
+  #mainNav nav a,
+  #mainNav a {
+    display: block;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  /* Botón cerrar sesión alineado */
+  #mainNav .link-button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+  }
+
+  /* Portada */
+  .portada        { padding: 30px 12px; }
+  .portada h1     { font-size: 30px; }
+  .portada p      { font-size: 16px; }
+
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn.secondary,
+  .btn.primary {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+  }
+
+  /* Paginación más compacta */
+  nav[role="navigation"] a,
+  nav[role="navigation"] span[aria-current="page"] span,
+  nav[role="navigation"] span[aria-disabled="true"] span {
+    width: 36px;
+    height: 36px;
+  }
+}

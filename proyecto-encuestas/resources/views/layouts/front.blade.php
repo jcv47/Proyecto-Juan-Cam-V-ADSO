@@ -12,28 +12,33 @@
 <body>
   <div class="container">
     <header>
-      <div class="barra_navegacion">Sondar</div>
-      <nav>
+  <div class="barra_navegacion">Sondar</div>
+
+  {{-- Botón hamburger (solo visible en móvil) --}}
+  <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <nav id="mainNav">
     <ul>
       <li><a href="{{ route('home') }}">Inicio</a></li>
       <li><a href="{{ route('ui.servicios') }}">Servicios</a></li>
       <li><a href="{{ route('ui.productos') }}">Productos</a></li>
 
       @auth
-        {{-- CLIENTE --}}
         @if(auth()->user()->role === 'cliente')
           <li><a href="{{ route('ui.comentarios') }}">Comentarios</a></li>
           <li><a href="{{ route('ui.contacto') }}">Contacto</a></li>
         @endif
 
-        {{-- ADMIN --}}
         @if(auth()->user()->role === 'admin')
           <li><a href="{{ route('admin.surveys.create') }}">Crear encuesta</a></li>
           <li><a href="{{ route('admin.reports.index') }}">Informes</a></li>
           <li><a href="{{ route('ui.comentarios') }}">Respuestas</a></li>
         @endif
 
-        {{-- PERFIL + LOGOUT --}}
         <li><a href="{{ route('profile.edit') }}">Ver perfil</a></li>
         <li>
           <form method="POST" action="{{ route('logout') }}">
@@ -47,7 +52,7 @@
       @endauth
     </ul>
   </nav>
-    </header>
+</header>
 
     <main>
       @if(session('success'))
@@ -80,6 +85,25 @@
   </div>
 
   <script src="{{ asset('js/app.js') }}"></script>
+  <script>
+  const toggle = document.getElementById('navToggle');
+  const nav    = document.getElementById('mainNav');
+
+  toggle.addEventListener('click', () => {
+    const isOpen = nav.classList.toggle('open');
+    toggle.classList.toggle('open', isOpen);
+    toggle.setAttribute('aria-expanded', isOpen);
+  });
+
+  // Cierra el menú si el usuario hace click en un link
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      toggle.classList.remove('open');
+      toggle.setAttribute('aria-expanded', false);
+    });
+  });
+</script>
   @stack('scripts')
 </body>
 </html>
