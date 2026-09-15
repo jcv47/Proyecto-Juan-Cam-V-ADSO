@@ -1,15 +1,34 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  // 1. Ir a la raiz
-  await page.goto('http://127.0.0.1:8000/');
+test('flujo e2e completo de encuestas', async ({ page }) => {
+  // 1. Ir directamente a la pantalla de login de Laravel
+  await page.goto('http://127.0.0.1:8000/login');
 
-  // 2. Usar regex para no depender de tildes o mayúsculas en 'Iniciar Sesión'
-  await page.getByRole('link', { name: /Iniciar Ses/i }).click();
-
-  // 3. Llenar el formulario directo sin clics intermedios de codegen
+  // 2. Formulario de inicio de sesión
   await page.getByRole('textbox', { name: /Correo/i }).fill('admin@sondar.com');
   await page.getByRole('textbox', { name: /Contrase/i }).fill('12345678');
   
-  await page.getByRole('button', { name: /Ingresar|Iniciar/i }).click();
+  // Enviar formulario y esperar la navegación tras autenticarse
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => {}),
+    page.getByRole('button', { name: /Ingresar|Iniciar/i }).click(),
+  ]);
+
+  // 3. Sección de Respuestas
+  await page.getByRole('link', { name: /Respuestas/i }).click();
+  await page.getByRole('link', { name: /Ver detalle/i }).first().click();
+  await page.getByRole('link', { name: /Volver/i }).click();
+
+  // 4. Sección de Informes
+  await page.getByRole('link', { name: /Informes/i }).click();
+
+  const goToPageLink = page.getByRole('link', { name: /Go to page/i });
+  if (await goToPageLink.isVisible()) {
+    await goToPageLink.click();
+  }
+
+  await page.getByRole('link', { name: /Servicios/i }).click();
+
+  // 5. Cerrar Sesión
+  await page.getByRole('button', { name: /Cerrar ses/i }).click();
 });
