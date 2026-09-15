@@ -34,7 +34,9 @@ jobs:
     - name: Prepare Laravel Environment
       run: |
         cp .env.example .env
+        touch database/database.sqlite
         php artisan key:generate
+        php artisan migrate --force
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
