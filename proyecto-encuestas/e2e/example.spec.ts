@@ -16,5 +16,5 @@ test('validar inicio de sesion y navegacion interna', async ({ page }) => {
 
   // 5. Validar que la página interna cargó correctamente sin error 500
   await expect(page.locator('body')).not.toContainText('View [index] not found');
-  await expect(page).toHaveURL(/.*comentarios/);
+  await expect(page).toHaveURL(/.*respuestas/);
 });
