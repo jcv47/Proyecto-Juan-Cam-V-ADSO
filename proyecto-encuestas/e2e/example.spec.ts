@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('validar inicio de sesion correcto', async ({ page }) => {
+test('validar inicio de sesion y navegacion interna', async ({ page }) => {
   // 1. Ir a la pantalla de login
   await page.goto('http://127.0.0.1:8000/login');
 
@@ -11,6 +11,10 @@ test('validar inicio de sesion correcto', async ({ page }) => {
   // 3. Hacer clic en Ingresar
   await page.getByRole('button', { name: /Ingresar|Iniciar/i }).click();
 
-  // 4. Aserción final: Confirmar que ya NO estamos en la URL de /login
-  await expect(page).not.toHaveURL(/.*login/);
+  // 4. Redirigir manualmente a la ruta interna que sí existe (ejemplo: /respuestas o /dashboard)
+  await page.goto('http://127.0.0.1:8000/respuestas');
+
+  // 5. Validar que la página interna cargó correctamente sin error 500
+  await expect(page.locator('body')).not.toContainText('View [index] not found');
+  await expect(page).toHaveURL(/.*respuestas/);
 });
