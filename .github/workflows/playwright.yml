@@ -34,7 +34,8 @@ jobs:
     - name: Prepare Laravel Environment
       run: |
         cp .env.example .env
-        touch database/database.sqlite
+        sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+        sed -i 's/DB_DATABASE=.*/DB_DATABASE=:memory:/' .env
         php artisan key:generate
         php artisan migrate --force
 

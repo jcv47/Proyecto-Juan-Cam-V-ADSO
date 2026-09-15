@@ -72,8 +72,9 @@ export default defineConfig({
 
  
   webServer: {
-  command: 'php artisan serve',
+  command: 'php artisan serve --port=8000',
   url: 'http://127.0.0.1:8000',
   reuseExistingServer: !process.env.CI,
+  timeout: 120 * 1000,
 },
 });
